@@ -2,292 +2,301 @@
 
 ## Overview
 
-This project is a Cisco Packet Tracer networking lab comparing the configuration and behaviour of RIP v2 and OSPF.
+This project is a Cisco Packet Tracer lab comparing RIP v2 and OSPF in the same three-router network.
 
-The project was originally developed as part of my Computing and IT (Networking) degree and has been adapted into a practical portfolio project to demonstrate my networking, configuration, testing and troubleshooting skills.
+It was adapted from work completed during my BSc (Hons) Computing and IT (Networking) degree and is presented here as a practical portfolio project focused on configuration, verification, fault testing and troubleshooting.
 
-The same network environment was configured using both routing protocols so that their operation could be tested and compared.
+The lab uses a redundant triangular router topology so that a link can be deliberately disabled and the behaviour of each routing protocol can be observed.
 
 ## Objectives
 
-The main objectives of the project were to:
-
-* Design and configure a routed network in Cisco Packet Tracer.
-* Configure IPv4 addressing across routers and end devices.
-* Implement RIP v2 as a dynamic routing protocol.
-* Implement OSPF as a dynamic routing protocol.
-* Verify that routes were being learned correctly.
-* Test connectivity between different networks.
-* Introduce network failures and observe how the network responded.
-* Use Cisco IOS commands to diagnose connectivity and routing problems.
-* Compare the behaviour and configuration of RIP v2 and OSPF.
+- Build a three-router Cisco Packet Tracer network.
+- Configure IPv4 addressing on routers and end devices.
+- Configure and verify RIP version 2.
+- Configure and verify OSPF area 0.
+- Test end-to-end connectivity.
+- Inspect routing tables and protocol-specific information.
+- Simulate a link failure.
+- Confirm that an alternative route is learned and used.
+- Compare RIP v2 and OSPF from a practical troubleshooting perspective.
 
 ## Technologies Used
 
-* Cisco Packet Tracer
-* Cisco IOS
-* Cisco 2911 routers
-* IPv4
-* RIP version 2
-* OSPF
-* ICMP
-* Command-line network troubleshooting tools
+- Cisco Packet Tracer
+- Cisco 2911 routers
+- Cisco IOS
+- IPv4
+- RIP version 2
+- OSPF
+- ICMP
+- Cisco IOS troubleshooting commands
 
-## Network Topology
-
-The lab contains multiple routed networks connected using Cisco routers.
-
-The same basic topology was used for both the RIP v2 and OSPF configurations so that the two routing protocols could be compared under similar conditions.
-
-Add topology image here:
+## Topology
 
 ```text
-screenshots/network-topology.png
+        10.0.12.0/30
+      R1-------------R2
+      |               |
+      |               |
+      |               |
+      |               |
+      R3--------------+
+      10.0.13.0/30   10.0.23.0/30
+
+LAN 1: 192.168.10.0/24
+PC1 --- R1
+
+LAN 2: 192.168.30.0/24
+R3 --- PC2
 ```
 
-The network contains:
+The direct R1-R3 link is normally the shortest path between the two LANs. During failure testing, that link is disabled so traffic must travel through R2.
 
-* Multiple Cisco routers
-* Separate IPv4 networks
-* End devices used to test connectivity
-* Multiple router-to-router links
-* Dynamic routing between networks
+## Addressing Plan
 
-## IP Addressing
+| Device | Interface | IP address | Subnet mask | Purpose |
+|---|---|---:|---:|---|
+| R1 | G0/0 | 192.168.10.1 | 255.255.255.0 | LAN 1 gateway |
+| R1 | G0/1 | 10.0.12.1 | 255.255.255.252 | Link to R2 |
+| R1 | G0/2 | 10.0.13.1 | 255.255.255.252 | Link to R3 |
+| R2 | G0/0 | 10.0.12.2 | 255.255.255.252 | Link to R1 |
+| R2 | G0/1 | 10.0.23.1 | 255.255.255.252 | Link to R3 |
+| R3 | G0/0 | 192.168.30.1 | 255.255.255.0 | LAN 2 gateway |
+| R3 | G0/1 | 10.0.23.2 | 255.255.255.252 | Link to R2 |
+| R3 | G0/2 | 10.0.13.2 | 255.255.255.252 | Link to R1 |
+| PC1 | NIC | 192.168.10.10 | 255.255.255.0 | Test host |
+| PC2 | NIC | 192.168.30.10 | 255.255.255.0 | Test host |
 
-Each router interface and end device was assigned a static IPv4 address.
+Default gateway for PC1: `192.168.10.1`
 
-An addressing table can be added here:
-
-| Device | Interface   | IP Address | Subnet Mask |
-| ------ | ----------- | ---------- | ----------- |
-| R1     | G0/0        | [Add IP]   | [Add mask]  |
-| R1     | [Interface] | [Add IP]   | [Add mask]  |
-| R2     | [Interface] | [Add IP]   | [Add mask]  |
-| R3     | [Interface] | [Add IP]   | [Add mask]  |
-| PC1    | NIC         | [Add IP]   | [Add mask]  |
-| PC2    | NIC         | [Add IP]   | [Add mask]  |
-
-## RIP v2 Configuration
-
-The first version of the network used RIP version 2.
-
-RIP was configured on each router and the appropriate directly connected networks were advertised.
-
-Example configuration:
-
-```cisco
-router rip
- version 2
- no auto-summary
- network [network-address]
- network [network-address]
-```
-
-After configuration, the routing tables were checked to confirm that RIP routes had been learned.
-
-Useful verification command:
-
-```cisco
-show ip route
-```
-
-RIP-learned routes appear in the routing table with the `R` code.
-
-Additional configuration files for individual routers are available in the `configs/rip` directory.
-
-## OSPF Configuration
-
-The network was then configured using OSPF.
-
-Each router was configured to participate in the OSPF routing process and advertise the required networks.
-
-Example configuration:
-
-```cisco
-router ospf 1
- network [network-address] [wildcard-mask] area 0
-```
-
-OSPF operation was verified using commands including:
-
-```cisco
-show ip route
-show ip ospf neighbor
-show ip ospf interface
-```
-
-OSPF-learned routes appear in the routing table with the `O` code.
-
-Individual router configurations are available in the `configs/ospf` directory.
-
-## Connectivity Testing
-
-Once each routing protocol had been configured, connectivity was tested between devices located on different networks.
-
-Testing included:
-
-```text
-ping
-tracert
-```
-
-Successful pings confirmed that traffic could travel through the routers and reach networks that were not directly connected.
-
-Routing tables were also inspected to confirm that routers had learned the expected routes.
-
-## Troubleshooting
-
-A major part of the project involved deliberately introducing faults into the network and investigating their effect.
-
-Rather than only demonstrating a working configuration, I wanted the project to show how I would approach a networking problem when something goes wrong.
-
-Commands used during troubleshooting included:
-
-```cisco
-show ip interface brief
-show ip route
-show running-config
-show ip ospf neighbor
-ping
-traceroute
-```
-
-These commands helped identify issues involving:
-
-* Interface status
-* IP addressing
-* Routing configuration
-* Learned routes
-* OSPF neighbour relationships
-* End-to-end connectivity
-
-## Link Failure Test
-
-One of the tests involved deliberately shutting down a router interface to simulate a network failure.
-
-For example:
-
-```cisco
-interface GigabitEthernet0/0
- shutdown
-```
-
-The network was then monitored to determine how the routing environment responded to the unavailable link.
-
-I checked:
-
-* Whether connectivity was lost
-* Which routes disappeared or changed
-* Whether another available path was used
-* Changes to the routing table
-* The behaviour of the routing protocol following the failure
-
-The interface could then be restored using:
-
-```cisco
-interface GigabitEthernet0/0
- no shutdown
-```
-
-Further tests were performed after restoring the interface to confirm that normal connectivity returned.
-
-## RIP v2 and OSPF Comparison
-
-| Feature                    | RIP v2                                  | OSPF                             |
-| -------------------------- | --------------------------------------- | -------------------------------- |
-| Routing type               | Distance-vector                         | Link-state                       |
-| Metric                     | Hop count                               | Cost                             |
-| Configuration              | Relatively simple                       | More detailed                    |
-| Maximum hop count          | 15                                      | Not based on hop-count limit     |
-| Network knowledge          | Learns routes from neighbouring routers | Builds a topology database       |
-| Scalability                | Better suited to smaller networks       | Better suited to larger networks |
-| Troubleshooting complexity | Lower                                   | Higher                           |
-| Route identifier           | R                                       | O                                |
-
-Both protocols were capable of providing dynamic routing within the test environment, although their method of calculating and maintaining routes differs significantly.
-
-RIP v2 was straightforward to configure and useful for demonstrating the basic operation of dynamic routing.
-
-OSPF required more configuration and understanding, but provided more advanced routing behaviour and is more suitable for larger or more complex networks.
+Default gateway for PC2: `192.168.30.1`
 
 ## Repository Structure
 
 ```text
 routing-protocol-comparison/
-│
 ├── README.md
-│
+├── docs/
+│   ├── build-guide.md
+│   └── ip-addressing.md
 ├── packet-tracer/
-│   ├── rip-network.pkt
-│   ├── ospf-network.pkt
-│   └── failure-test.pkt
-│
+│   └── README.md
 ├── configs/
 │   ├── rip/
 │   │   ├── R1.txt
 │   │   ├── R2.txt
 │   │   └── R3.txt
-│   │
 │   └── ospf/
 │       ├── R1.txt
 │       ├── R2.txt
 │       └── R3.txt
-│
 ├── screenshots/
-│   ├── network-topology.png
-│   ├── rip-routing-table.png
-│   ├── ospf-routing-table.png
-│   └── failure-test.png
-│
+│   └── README.md
 └── results/
-    └── comparison.md
+    ├── comparison.md
+    └── test-plan.md
 ```
+
+## RIP v2
+
+The RIP configuration uses version 2 and disables automatic summarisation.
+
+Example:
+
+```cisco
+router rip
+ version 2
+ no auto-summary
+ network 10.0.0.0
+ network 192.168.10.0
+```
+
+Useful verification commands:
+
+```cisco
+show ip route
+show ip protocols
+show ip interface brief
+```
+
+RIP-learned routes are identified by `R` in the routing table.
+
+Full device configurations are in `configs/rip/`.
+
+## OSPF
+
+All router-to-router and LAN networks are placed in OSPF area 0.
+
+Example:
+
+```cisco
+router ospf 1
+ router-id 1.1.1.1
+ network 10.0.12.0 0.0.0.3 area 0
+ network 10.0.13.0 0.0.0.3 area 0
+ network 192.168.10.0 0.0.0.255 area 0
+```
+
+Useful verification commands:
+
+```cisco
+show ip route
+show ip ospf neighbor
+show ip ospf interface brief
+show ip protocols
+```
+
+OSPF-learned routes are identified by `O` in the routing table.
+
+Full device configurations are in `configs/ospf/`.
+
+## Connectivity Testing
+
+From PC1:
+
+```text
+ping 192.168.30.10
+tracert 192.168.30.10
+```
+
+From PC2:
+
+```text
+ping 192.168.10.10
+tracert 192.168.10.10
+```
+
+Successful tests confirm that the routers are learning remote networks and forwarding traffic correctly.
+
+## Failure Test
+
+The main resilience test disables the direct R1-R3 connection.
+
+On R1:
+
+```cisco
+enable
+configure terminal
+interface gigabitEthernet0/2
+shutdown
+end
+```
+
+Then repeat:
+
+```text
+ping 192.168.30.10
+tracert 192.168.30.10
+```
+
+The routing table should also be checked:
+
+```cisco
+show ip route
+```
+
+Traffic should eventually use the alternative path:
+
+```text
+R1 -> R2 -> R3
+```
+
+Restore the interface using:
+
+```cisco
+configure terminal
+interface gigabitEthernet0/2
+no shutdown
+end
+```
+
+The same test can be performed once with RIP v2 and once with OSPF.
+
+## Troubleshooting Approach
+
+The following commands are used throughout the project:
+
+```cisco
+show ip interface brief
+show ip route
+show running-config
+show ip protocols
+show ip ospf neighbor
+ping
+traceroute
+```
+
+When connectivity fails, the troubleshooting order is:
+
+1. Check interface status.
+2. Check IPv4 addresses and subnet masks.
+3. Check end-device default gateways.
+4. Check directly connected routes.
+5. Check whether dynamic routes have been learned.
+6. Check protocol configuration.
+7. Check OSPF neighbour relationships where applicable.
+8. Use ping and traceroute to locate the failure.
+
+## RIP v2 vs OSPF
+
+| Feature | RIP v2 | OSPF |
+|---|---|---|
+| Routing approach | Distance-vector | Link-state |
+| Metric | Hop count | Cost |
+| Maximum hop count | 15 | Not based on a hop-count limit |
+| Configuration | Simpler | More detailed |
+| Topology awareness | Limited | Builds a link-state database |
+| Scalability | Smaller networks | Better suited to larger networks |
+| Route code | R | O |
+
+The practical results from the lab should be recorded in `results/comparison.md`.
 
 ## Skills Demonstrated
 
-This project demonstrates practical experience with:
+- Cisco router configuration
+- IPv4 addressing and subnetting
+- Dynamic routing
+- RIP v2
+- OSPF
+- Routing-table analysis
+- Connectivity testing
+- Fault simulation
+- Network troubleshooting
+- Technical documentation
+- Problem solving
 
-* Cisco router configuration
-* IPv4 addressing and subnetting
-* Dynamic routing
-* RIP v2
-* OSPF
-* Cisco IOS
-* Routing tables
-* Network connectivity testing
-* Fault simulation
-* Network troubleshooting
-* Technical documentation
-* Problem solving
+### Troubleshooting Example – Incorrect Interface Addressing
+
+During initial connectivity testing, PC2 was unable to reach its default gateway even though the router interfaces showed an `up/up` status.
+
+I had used Packet Tracer’s automatic cabling option when connecting the devices, which resulted in different physical router interfaces being selected than I originally expected. I had then assigned the planned IP addresses to the wrong interfaces on R3.
+
+I used `show ip interface brief` and checked the actual interface connections and addressing. This identified the mismatch between the configured IP addresses and the interfaces being used.
+
+After correcting the interface IP assignments, I tested connectivity again and PC2 was able to successfully ping its default gateway.
+
+This was a useful reminder to verify the actual interfaces selected by Packet Tracer rather than assuming the automatically chosen ports match the original plan.
 
 ## What I Learned
 
-This project improved my understanding of how dynamic routing protocols allow routers to exchange information and automatically build routes to remote networks.
+This project strengthened my understanding of how routers learn remote networks and how different routing protocols react when the topology changes.
 
-It also gave me practical experience using Cisco IOS commands to investigate network behaviour rather than relying only on whether a ping succeeded or failed.
-
-The failure testing was particularly useful because it required me to work through a problem systematically by checking interface status, addressing, routing tables and protocol configuration.
-
-Comparing RIP v2 and OSPF also helped me understand the difference between simply configuring a routing protocol and understanding how that protocol responds when the network changes.
+The most useful part of the lab was deliberately introducing a link failure and troubleshooting the resulting route changes. This required checking interface state, addressing, routing tables and routing-protocol information rather than relying only on ping results.
 
 ## Future Improvements
 
-Possible future extensions to this project include:
-
-* Adding a larger network topology.
-* Testing multiple OSPF areas.
-* Comparing convergence following different link failures.
-* Introducing VLANs and inter-VLAN routing.
-* Adding DHCP services.
-* Implementing access control lists.
-* Capturing additional troubleshooting scenarios.
-* Testing network redundancy with alternative paths.
+- Measure convergence more precisely.
+- Add VLANs and inter-VLAN routing.
+- Add DHCP.
+- Add ACLs.
+- Expand the topology.
+- Test multiple OSPF areas.
+- Add packet captures or Packet Tracer simulation-mode screenshots.
 
 ## Author
 
 **Sam Morrey**
 
-BSc (Hons) Computing and IT (Networking) graduate
+BSc (Hons) Computing and IT (Networking)
 
 Interested in networking, IT support, troubleshooting and cybersecurity.
